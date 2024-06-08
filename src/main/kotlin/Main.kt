@@ -1,5 +1,16 @@
 package chucknorris
 
+class CipherEncoder {
+    private var inputData = charArrayOf()
+    init {
+        println("Input string:")
+        inputData = readln().toCharArray()
+    }
+    fun printInputData() {
+        println(inputData.joinToString(" "))
+    }
+}
 fun main() {
-    println("Hello Cipher Encoder!")
+    val cipherEncoder = CipherEncoder()
+    cipherEncoder.printInputData()
 }

@@ -1,26 +1,66 @@
 package chucknorris
 
-class CipherEncoder {
+class ChuckNoris {
     private var inputsStr = mutableListOf<Char>()
     private var inputCode = listOf<String>()
     private var binaryData = mutableMapOf<Char, List<Byte>>()
     private var outputCode = mutableListOf<String>()
     private var outputStr = mutableListOf<Char>()
 
-    fun binary() {
+    fun menu() {
+        while (true) {
+            println("Please input operation (encode/decode/exit):")
+            val action = readln()
+            when (action.lowercase()) {
+                "encode" -> encode()
+                "decode" -> decode()
+                "exit" ->  break
+                else -> { println("There is no '$action' operation\n"); continue }
+            }
+        }
+        println("Bye!")
+
+    }
+    private fun encode() {
+        outputCode = mutableListOf()
+        println("Input string:")
+        inputsStr = readln().toCharArray().toMutableList()
+        this.binaryMap()
+        this.strToCode()
+        this.printEncode()
+    }
+    private fun decode() {
+        outputStr = mutableListOf()
+        println("Input encoded string:")
+        inputCode = readln().split(" ")
+        if (this.checkInputCode()) {
+            this.codeToString()
+            this.printDecode()
+        }
+    }
+    private fun checkInputCode(): Boolean {
+        var check = true
+        var lenString = 0
+        if (inputCode.size % 2 != 0) check = false
+
+        inputCode.forEachIndexed { index, code ->
+            if (code.any { it != '0' } ) check = false
+            if (index % 2 == 0 && code.length > 2) check = false
+            if (index % 2 == 1) lenString += code.length
+        }
+        if (lenString % 7 != 0) check = false
+
+        if (!check) println("Encoded string is not valid.\n")
+        return check
+    }
+    private fun binaryMap() {
         inputsStr.forEach { char ->
             val binary = Integer.toBinaryString(char.code).toInt()
             val binaryStr = String.format("%07d", binary)
             binaryData[char] = binaryStr.split("").filter { it != "" }.map { it.toByte() }
         }
     }
-    fun printBinary() {
-        println("\nThe result of binary data:")
-        inputsStr.forEach {
-            println("$it = ${(binaryData[it] ?: emptyList()).joinToString("")}")
-        }
-    }
-    fun chuckNorris() {
+    private fun strToCode() {
         var lenSeq: Int
         val toIndex = inputsStr.size * 7
         val binaryCode = buildString { inputsStr.forEach{ append(binaryData[it]?.joinToString("") ?: "" )} }
@@ -41,18 +81,18 @@ class CipherEncoder {
             fromIndex += lenSeq
         }
     }
-    fun printChuckNorris() {
-        println("\nThe result of Chuck Norris coder:")
+    private fun printEncode() {
+        println("Encoded string:")
         println(outputCode.joinToString(" "))
+        println()
     }
-    fun chuckEncoder() {
-        println("Input encoded string:")
+    private fun codeToString() {
         var i = 0
         var num: String // 0 == 00 or 1 == 0
         var cnt: String
         val result = mutableListOf<String>()
         var addStr: String
-        inputCode = readln().split(" ")
+
         repeat(inputCode.size / 2) {
             num = inputCode[i++]
             cnt = inputCode[i++]
@@ -61,6 +101,7 @@ class CipherEncoder {
             result.add(addStr)
         }
         val str = result.joinToString("")
+
         i = 0
         repeat(str.length / 7) {
             val charBin = str.substring(i, i + 7)
@@ -68,22 +109,13 @@ class CipherEncoder {
             outputStr.add(char.toChar())
             i += 7
         }
-        this.printEncode()
     }
-    private fun printEncode() {
-        println("The result:\n${outputStr.joinToString("") }")
+    private fun printDecode() {
+        println("Decoded string:\n${ outputStr.joinToString("") }\n")
     }
-    fun chuckCoder() {
-        println("Input string:")
-        inputsStr = readln().toCharArray().toMutableList()
-        this.binary()
-        this.printBinary()
-        this.chuckNorris()
-        this.printChuckNorris()
-    }
+
 }
 fun main() {
-    val cipherEncoder = CipherEncoder()
-//    cipherEncoder.chuckCoder()
-    cipherEncoder.chuckEncoder()
+    val cipherEncoder = ChuckNoris()
+    cipherEncoder.menu()
 }
